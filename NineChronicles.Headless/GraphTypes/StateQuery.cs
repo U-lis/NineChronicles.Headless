@@ -26,9 +26,42 @@ namespace NineChronicles.Headless.GraphTypes
 {
     public partial class StateQuery : ObjectGraphType<StateContext>
     {
+        private AvatarStateType.AvatarStateContext? GetAvatar(IResolveFieldContext<StateContext> context,
+            Address address)
+        {
+            try
+            {
+                return new AvatarStateType.AvatarStateContext(
+                    context.Source.AccountState.GetAvatarState(address),
+                    context.Source.AccountState,
+                    context.Source.BlockIndex);
+            }
+            catch (InvalidAddressException)
+            {
+                throw new InvalidOperationException($"The state {address} doesn't exists");
+            }
+        }
+
         public StateQuery()
         {
             Name = "StateQuery";
+            Field<ListGraphType<AvatarStateType>>(
+                name: "avatars",
+                description: "List of avatar states.",
+                arguments: new QueryArguments(
+                    new QueryArgument<NonNullGraphType<ListGraphType<NonNullGraphType<AddressType>>>>
+                    {
+                        Name = "avatarAddresses",
+                        Description = "List of avatar address list"
+                    }
+                ),
+                resolve: context =>
+                {
+                    return context.GetArgument<List<Address>>("avatarAddresses").AsParallel().AsOrdered().Select(
+                        address => GetAvatar(context, address)
+                    );
+                }
+            );
             Field<AvatarStateType>(
                 name: "avatar",
                 description: "State for avatar.",
@@ -40,17 +73,7 @@ namespace NineChronicles.Headless.GraphTypes
                 resolve: context =>
                 {
                     var address = context.GetArgument<Address>("avatarAddress");
-                    try
-                    {
-                        return new AvatarStateType.AvatarStateContext(
-                            context.Source.AccountState.GetAvatarState(address),
-                            context.Source.AccountState,
-                            context.Source.BlockIndex);
-                    }
-                    catch (InvalidAddressException)
-                    {
-                        throw new InvalidOperationException($"The state {address} doesn't exists");
-                    }
+                    return GetAvatar(context, address);
                 });
             Field<RankingMapStateType>(
                 name: "rankingMap",
