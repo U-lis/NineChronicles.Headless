@@ -201,13 +201,17 @@ namespace NineChronicles.Headless.GraphTypes
                     return context.GetArgument<List<Address>>("avatarAddresses").AsParallel().AsOrdered().Select(
                         address =>
                         {
-                            var infoAddr = ArenaInformation.DeriveAddress(address, championshipId, round);
-                            var scoreAddr = ArenaScore.DeriveAddress(address, championshipId, round);
+                            var info = context.Source.GetState(
+                                ArenaInformation.DeriveAddress(address, championshipId, round)
+                            );
+                            var score = context.Source.GetState(
+                                ArenaScore.DeriveAddress(address, championshipId, round)
+                            );
 
                             return (
                                 address,
-                                new ArenaInformation((List)context.Source.GetState(infoAddr)!),
-                                new ArenaScore((List)context.Source.GetState(scoreAddr)!)
+                                info is not null ? new ArenaInformation((List)info) : null,
+                                score is not null ? new ArenaScore((List)score) : null
                             );
                         }
                     );

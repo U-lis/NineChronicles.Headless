@@ -6,7 +6,7 @@ using Nekoyume.Model.Arena;
 
 namespace NineChronicles.Headless.GraphTypes.States;
 
-public class ArenaInformationType : ObjectGraphType<(Address, ArenaInformation, ArenaScore)>
+public class ArenaInformationType : ObjectGraphType<(Address, ArenaInformation?, ArenaScore?)>
 {
     public ArenaInformationType()
     {
@@ -14,33 +14,33 @@ public class ArenaInformationType : ObjectGraphType<(Address, ArenaInformation, 
             name: "avatarAddress",
             resolve: context => context.Source.Item1
         );
-        Field<NonNullGraphType<AddressType>>(
+        Field<AddressType>(
             nameof(ArenaInformation.Address),
-            resolve: context => context.Source.Item2.Address
+            resolve: context => context.Source.Item2?.Address
         );
-        Field<NonNullGraphType<IntGraphType>>(
+        Field<IntGraphType>(
             nameof(ArenaInformation.Win),
-            resolve: context => context.Source.Item2.Win
+            resolve: context => context.Source.Item2?.Win
         );
-        Field<NonNullGraphType<IntGraphType>>(
+        Field<IntGraphType>(
             nameof(ArenaInformation.Lose),
-            resolve: context => context.Source.Item2.Lose
+            resolve: context => context.Source.Item2?.Lose
         );
-        Field<NonNullGraphType<IntGraphType>>(
+        Field<IntGraphType>(
             nameof(ArenaInformation.Ticket),
-            resolve: context => context.Source.Item2.Ticket
+            resolve: context => context.Source.Item2?.Ticket
         );
-        Field<NonNullGraphType<IntGraphType>>(
+        Field<IntGraphType>(
             nameof(ArenaInformation.TicketResetCount),
-            resolve: context => context.Source.Item2.TicketResetCount
+            resolve: context => context.Source.Item2?.TicketResetCount
         );
-        Field<NonNullGraphType<IntGraphType>>(
+        Field<IntGraphType>(
             nameof(ArenaInformation.PurchasedTicketCount),
-            resolve: context => context.Source.Item2.PurchasedTicketCount
+            resolve: context => context.Source.Item2?.PurchasedTicketCount
         );
-        Field<NonNullGraphType<IntGraphType>>(
+        Field<IntGraphType>(
             name: "score",
-            resolve: context => context.Source.Item3.Score
+            resolve: context => context.Source.Item3?.Score
         );
     }
 }
